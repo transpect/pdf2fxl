@@ -7,8 +7,8 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:tr="http://transpect.io"
   version="1.0"
-  name="tr:pdf2fxl"
-  type="tr:pdf2fxl" exclude-inline-prefixes="tr c css letex html">
+  name="tr-pdf2fxl"
+  type="tr:pdf2fxl" exclude-inline-prefixes="tr c css html">
   
   <p:documentation>
     This step is used to convert HTML files from Popplers pdftohtml tool
@@ -72,7 +72,7 @@
 		</p:documentation>
 	</p:option>
 
-  <p:import href="http://transpect.io/css-expand/xpl/css.xpl"/>
+  <p:import href="http://transpect.io/css-tools/xpl/css.xpl"/>
   <p:import href="http://transpect.io/epubtools/xpl/epub-convert.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   <p:import href="http://transpect.io/xproc-util/file-uri/xpl/file-uri.xpl"/>
