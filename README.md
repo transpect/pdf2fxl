@@ -24,7 +24,7 @@ for building EPUBs, etc.
 
 ## Invocation
 
-`./pdf2fxl.sh -i sample-input/demojam.pdf -d -e`
+`./pdf2fxl -i sample-input/demojam.pdf -d -e`
 
 (Call it without arguments to see a brief help text.)
 

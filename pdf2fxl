@@ -1,0 +1,174 @@
+#!/bin/bash
+usage() {
+    echo "pdf2fxl <options> {PDF}"
+    echo ""
+    echo "options:"
+    echo "-z <zoom factor>"
+    echo "-o custom output directory"
+    echo "-r (optional: raster text as image)"
+    echo "-e (optional: create epub)"
+    echo "-d (optional: debug mode)"
+    echo "-p (optional: omit poppler)"
+    echo "-c (optional: clean temp dir)";
+    exit 1
+}
+
+real_dir() {
+    SOURCE="$1"
+    while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+        DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+        SOURCE="$(readlink "$SOURCE")"
+        [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+    done
+    echo "$( cd -P "$( dirname "$SOURCE" )" && pwd  )"
+}
+
+
+# cygwin check
+cygwin=false;
+case "`uname`" in
+  CYGWIN*) cygwin=true;
+esac
+
+# specify options
+while getopts ":z:o:redpc" opt; do
+    case "${opt}" in
+	z)
+	    ZOOM=${OPTARG}
+	    ;;
+	o)
+	    OUTDIR=${OPTARG}
+	    ;;
+	r)
+	    RASTERTEXT=yes
+	    ;;		
+	e)
+	    EPUB=yes
+	    ;;
+	d)
+	    DEBUG=yes
+	    ;;
+	p)
+	    EXECPOPPLER=no
+	    ;;
+	c)
+	    CLEAN=yes
+	    ;;
+	\?)
+	    echo "Invalid option: -$OPTARG" >&2
+	    exit 1
+	    ;;
+	:)
+	    echo "Option -$OPTARG requires an argument." >&2
+	    exit 1
+	    ;;
+    esac
+done
+
+shift $((OPTIND-1))
+# check if argument for file is set
+if [ -z $1 ]; then
+    echo "please specify a PDF file"
+    usage
+fi
+FILE=$1
+BASENAME=$(basename $FILE .pdf)
+
+# if zoom is not set use default value
+if [ -z $ZOOM ]; then 
+    ZOOM=2
+fi
+
+# set paths
+DIR=$( real_dir "${BASH_SOURCE[0]}" )
+if [ -z $OUTDIR ]; then
+    OUTDIR=$( real_dir "$FILE" )
+fi
+WORKDIR=$OUTDIR/$BASENAME
+DEBUGDIR=$OUTDIR/debug
+POPPLER=/usr/bin/pdftohtml
+CALABASH=$DIR/calabash/calabash.sh
+POPPLER=/usr/local/poppler/bin/pdftohtml
+
+# some additional information
+
+if [ "$DEBUG" == "yes" ]; then
+    echo "DEBUG MODE on"
+    echo "Input file: $FILE"
+    echo "Output dir: $OUTDIR"
+    echo "Workding Directory: $WORKDIR"
+    echo "Zoom factor: $ZOOM"
+    echo "Use Poppler: $EXECPOPPLER"
+    echo "Rasterize text: $RASTERTEXT"
+    echo "Create EPUB: $EPUB"
+fi
+
+if [ "$CLEAN" == "yes" ]; then
+    echo "clean temp dir $WORKDIR"
+    rm -rvf $WORKDIR
+fi
+
+# copy file into temp dir
+echo "copy files into $WORKDIR"
+mkdir -p $WORKDIR
+cp -u $FILE $WORKDIR
+
+# Windows or Unix-style paths
+if $cygwin; then
+    DIR_URI=file:/$(cygpath -m $DIR)
+    WORKDIR=$(cygpath -ma $WORKDIR)    
+    DEBUGDIR_URI=file:/$(cygpath -ma "$DEBUGDIR")
+    FILE=$(cygpath -ma "$FILE")
+    OUTDIR=$(cygpath -ma "$OUTDIR")
+else
+    DIR_URI=$DIR
+    DEBUGDIR_URI=file:$(real_dir $DEBUGDIR)
+    FILE=file:$FILE
+    OUTDIR=$OUTDIR
+fi
+
+# check if Poppler is installed properly and run 
+if [ ! -f $(which $POPPLER) ]; then
+    echo "Poppler pdftohtml not installed under $POPPLER."
+    exit 1
+elif  [ "$EXECPOPPLER" != "no" ]; then
+    echo "Converting $WORKDIR/$BASENAME.pdf to HTML"
+    $POPPLER -zoom $ZOOM \
+	     -fmt jpg -fontfullname -c -p -nomerge \
+	     "$WORKDIR/$BASENAME.pdf" \
+	&& echo "PDF extraction finished"
+    for html in "$WORKDIR"/*.html; do
+	cat "$html" | sed -r -e 's/<!--/<!\[CDATA\[/' | sed -r -e 's/-->/\]\]>/' > "$html"~
+	mv "$html"~ "$html"
+    done
+fi
+
+# use ImageMagick to generate poster shots from pages
+if  [ "$RASTERTEXT" == "yes" ]; then
+     DENSITY=$((72 * $ZOOM))
+    echo "Propagated image density: $DENSITY"
+    convert -verbose -format png -density "$DENSITY" "$WORKDIR/$BASENAME.pdf" "$WORKDIR/$BASENAME.png"
+    echo "Rasterizing pages finished"
+fi
+
+# check if Calabash exists and run
+if [ ! -f $CALABASH ]; then
+    echo "Calabash is not installed under $CALABASH."
+    exit 1
+else
+    echo "Convert single page HTML to wrapped HTML"
+    $CALABASH \
+  -o css=$WORKDIR/$BASENAME.wrap.css \
+  -o result=$WORKDIR/$BASENAME.epub-zip-manifest.xml \
+	$DIR_URI/xpl/pdf2fxl.xpl \
+	path=$WORKDIR \
+	rastertext=$RASTERTEXT \
+	debug=$DEBUG \
+	debug-dir-uri=$DEBUGDIR_URI \
+	status-dir-uri=$DEBUGDIR_URI/status \
+	generate-epub="$EPUB"
+fi
+
+# copy files
+cp -u $WORKDIR/*.epub $OUTDIR
+
