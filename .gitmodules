@@ -10,3 +10,6 @@
 [submodule "xslt-util"]
 	path = xslt-util
 	url = https://github.com/transpect/xslt-util
+[submodule "epubtools"]
+	path = epubtools
+	url = https://github.com/transpect/epubtools
