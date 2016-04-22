@@ -13,3 +13,6 @@
 [submodule "epubtools"]
 	path = epubtools
 	url = https://github.com/transpect/epubtools
+[submodule "schematron"]
+	path = schematron
+	url = https://github.com/transpect/schematron
