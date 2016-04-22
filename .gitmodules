@@ -1,0 +1,12 @@
+[submodule "calabash"]
+	path = calabash
+	url = https://github.com/transpect/calabash-frontend
+[submodule "css-tools"]
+	path = css-tools
+	url = https://github.com/transpect/css-tools
+[submodule "xproc-util"]
+	path = xproc-util
+	url = https://github.com/transpect/xproc-util
+[submodule "xslt-util"]
+	path = xslt-util
+	url = https://github.com/transpect/xslt-util
