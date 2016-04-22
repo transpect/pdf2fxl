@@ -44,10 +44,6 @@ not part of the images.
 
 ## Author
 
-Martin Kraetke, le-tex publishing services
+[Martin Kraetke](https://twitter.com/mkraetke), le-tex publishing services
 
-[@mkraetke](https://twitter.com/mkraetke),
-
-(small contributions, such as this page, by Gerrit Imsieke,
-[@gimsieke](https://twitter.com/gimsieke))
-
+(small contributions, such as this page, by [Gerrit Imsieke](https://twitter.com/gimsieke))
