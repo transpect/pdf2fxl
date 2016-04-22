@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  
+  <system systemId="http://transpect.io/pdf2fxl/" uri="../"/>
+  
+  <nextCatalog catalog="../css-tools/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../xproc-util/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../xslt-util/xmlcatalog/catalog.xml"/>
+  
+</catalog>
