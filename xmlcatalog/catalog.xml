@@ -4,7 +4,9 @@
   <system systemId="http://transpect.io/pdf2fxl/" uri="../"/>
   
   <nextCatalog catalog="../css-tools/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../epubtools/xmlcatalog/catalog.xml"/>
   <nextCatalog catalog="../xproc-util/xmlcatalog/catalog.xml"/>
   <nextCatalog catalog="../xslt-util/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../schematron/xmlcatalog/catalog.xml"/>
   
 </catalog>
