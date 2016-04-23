@@ -5,11 +5,10 @@ usage() {
     echo "options:"
     echo "-z <zoom factor>"
     echo "-o custom output directory"
-    echo "-r (optional: raster text as image)"
-    echo "-e (optional: create epub)"
-    echo "-d (optional: debug mode)"
-    echo "-p (optional: omit poppler)"
-    echo "-c (optional: clean temp dir)";
+    echo "-r (raster text as image)"
+    echo "-e (create epub)"
+    echo "-p (omit poppler)"
+    echo "-d (debug mode)"
     exit 1
 }
 
@@ -31,7 +30,7 @@ case "`uname`" in
 esac
 
 # specify options
-while getopts ":z:o:redpc" opt; do
+while getopts ":z:o:redp" opt; do
     case "${opt}" in
 	z)
 	    ZOOM=${OPTARG}
@@ -50,9 +49,6 @@ while getopts ":z:o:redpc" opt; do
 	    ;;
 	p)
 	    EXECPOPPLER=no
-	    ;;
-	c)
-	    CLEAN=yes
 	    ;;
 	\?)
 	    echo "Invalid option: -$OPTARG" >&2
@@ -74,6 +70,11 @@ fi
 FILE=$1
 BASENAME=$(basename $FILE .pdf)
 
+if [ "$FILE" == "*.pdf" ]; then
+   echo "stimmt"
+fi
+
+
 # if zoom is not set use default value
 if [ -z $ZOOM ]; then 
     ZOOM=2
@@ -88,7 +89,6 @@ WORKDIR=$OUTDIR/$BASENAME
 DEBUGDIR=$OUTDIR/debug
 POPPLER=/usr/bin/pdftohtml
 CALABASH=$DIR/calabash/calabash.sh
-POPPLER=/usr/local/poppler/bin/pdftohtml
 
 # some additional information
 
@@ -103,14 +103,16 @@ if [ "$DEBUG" == "yes" ]; then
     echo "Create EPUB: $EPUB"
 fi
 
-if [ "$CLEAN" == "yes" ]; then
-    echo "clean temp dir $WORKDIR"
-    rm -rvf $WORKDIR
-fi
+
 
 # copy file into temp dir
 echo "copy files into $WORKDIR"
 mkdir -p $WORKDIR
+# if poppler is not executed, we let the files from previous runs in the directory
+if [ "EXECPOPPLER" != "yes" ]; then
+  rm $WORKDIR/$BASENAME* 2> /dev/null 
+fi
+# copy input file into workdir
 cp -u $FILE $WORKDIR
 
 # Windows or Unix-style paths
@@ -143,7 +145,7 @@ elif  [ "$EXECPOPPLER" != "no" ]; then
     done
 fi
 
-# use ImageMagick to generate poster shots from pages
+# use ImageMagick to generate images from pages
 if  [ "$RASTERTEXT" == "yes" ]; then
      DENSITY=$((72 * $ZOOM))
     echo "Propagated image density: $DENSITY"
@@ -158,8 +160,8 @@ if [ ! -f $CALABASH ]; then
 else
     echo "Convert single page HTML to wrapped HTML"
     $CALABASH \
-  -o css=$WORKDIR/$BASENAME.wrap.css \
-  -o result=$WORKDIR/$BASENAME.epub-zip-manifest.xml \
+	-o css=$WORKDIR/$BASENAME.wrap.css \
+	-o result=$WORKDIR/$BASENAME.wrap.xhtml \
 	$DIR_URI/xpl/pdf2fxl.xpl \
 	path=$WORKDIR \
 	rastertext=$RASTERTEXT \
@@ -169,6 +171,7 @@ else
 	generate-epub="$EPUB"
 fi
 
-# copy files
-cp -u $WORKDIR/*.epub $OUTDIR
-
+if [[ "$DEBUG" == "yes" && "EPUB" == "yes" ]]; then
+    # copy files
+    cp -u $WORKDIR/*.epub $OUTDIR
+fi
