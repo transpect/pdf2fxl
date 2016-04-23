@@ -3,8 +3,8 @@
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:cx="http://xmlcalabash.com/ns/extensions" 
   xmlns:css="http://www.w3.org/1996/css"
-  xmlns:epub="http://transpect.le-tex.de/epubtools"
   xmlns:html="http://www.w3.org/1999/xhtml"
+  xmlns:epub="http://transpect.io/epubtools"
   xmlns:tr="http://transpect.io"
   version="1.0"
   name="tr-pdf2fxl"
@@ -15,10 +15,11 @@
   </p:documentation>
   
   <p:output port="result" primary="true">
-    <p:documentation>The result port provides the result of the EPUB packer (a Zip manifest)</p:documentation>
+    <p:documentation>The result port provides the HTML</p:documentation>
+    <p:pipe port="result" step="css-name"/>
   </p:output>
 
-  <p:output port="css">
+  <p:output port="css" primary="false">
     <p:documentation>This port provides the CSS stylesheet.</p:documentation>
     <p:pipe port="result" step="rename-wrapper"/>
   </p:output>
@@ -129,6 +130,10 @@
       <p:pipe port="result" step="input-dir-uri"/>
     </p:variable>
     
+    <cx:message>
+      <p:with-option name="message" select="'[info] processing ', $filename"/>
+    </cx:message>
+    
     <p:load>
       <p:with-option name="href" select="$filepath"/>
     </p:load>
@@ -144,6 +149,10 @@
   </p:for-each>
   
   <p:wrap-sequence wrapper="collection"/>
+  
+  <cx:message>
+    <p:with-option name="message" select="'[info] wrap collection in single HTML'"/>
+  </cx:message>
   
   <tr:store-debug pipeline-step="pdf2fxl/html-collection-pre">
     <p:with-option name="active" select="$debug"/>
@@ -255,5 +264,7 @@
       </p:identity>
     </p:otherwise>
   </p:choose>
+  
+  <p:sink/>
   
 </p:declare-step>
