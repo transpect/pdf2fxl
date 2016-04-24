@@ -8,10 +8,14 @@
   xmlns:tr="http://transpect.io"
   version="1.0"
   name="tr-pdf2fxl"
-  type="tr:pdf2fxl" exclude-inline-prefixes="tr c css html">
+  type="tr:pdf2fxl" 
+  exclude-inline-prefixes="tr c css html">
   
-  <p:documentation>
-    This step is used to convert HTML files from Popplers pdftohtml tool
+  <p:documentation xmlns="http://www.w3.org/1999/xhtml">
+    pdf2fxl converts a PDF to Fixed Layout EPUB3. To extract HTML from PDF, 
+    <a href="https://poppler.freedesktop.org" target="_blank">Poppler</a> needs 
+    to be installed. Further information can be found in the 
+    <a href="https://github.com/transpect/pdf2fxl/blob/master/README.md" target="_blank">README</a>.  
   </p:documentation>
   
   <p:output port="result" primary="true">
