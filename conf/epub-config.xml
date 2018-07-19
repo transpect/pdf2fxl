@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>   
+<?xml-model href="http://transpect.le-tex.de/epubtools/schema/metadata-conf/metadata-conf.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://transpect.le-tex.de/epubtools/schema/metadata-conf/metadata-conf.rng" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<epub-config format="EPUB3" layout="fixed" xmlns:letex="http://www.le-tex.de/namespace" html-subdir-name="text">
+	<!-- layout: reflowable|fixed
+	       (default: reflowable; fixed only permitted for KF8 and EPUB3 layouts)
+	     format: EPUB2|EPUB3|KF8 (default: EPUB3)
+	     Please note that specifying the format as the target option will override conf settings. 
+	-->
+	
+	<!-- COVER:
+		Unless there is a div with id='epub-cover-image-container'
+		or with epub:type='cover', cover HTML (or SVG wrapper, if svg='true') 
+		code will be generated.
+		The href attribute should include the path to the cover image file
+		(currently: PNG or JPEG). 
+		It may be an http(s):, a file:, or a relative URI. Relative
+		URIs will be resolved against the HTML source location.
+	  Support for external SVG files yet to be implemented.-->
+<!--	<cover href="images/cover.png" svg="true"/>-->
+	
+	<types>
+    <!-- A mapping from epub:type attribute values to generated
+      headings or list entries (type/@heading attribute) or export
+      file base names (type/@file) for the typed items. -->
+    <!-- A toc will be generated unless there is already a nav[@epub:type='toc'].
+    You can control its appearance in the spine content with the hidden attribute.
+    If there is already a toc in the content, hidden is always interpreted as 'false'.
+    Is that what you want? Our thinking was along the lines: if you include a rendered
+    toc in your HTML, you want to show it to the world. 
+    
+    Please note that due to limitations of Relax NG (or of the schema designer),
+    the required order of type declarations is toc, landmarks, everything else.
+    -->
+	  <type name="toc" heading="Inhaltsverzeichnis" hidden="true"/>
+	  <!--
+      There may be an optional hidden attribute for landmarks and toc (values: true|false,
+      default: true). It applies only to generated nav elements.
+      Please note that some reading systems still ignore this setting.
+      The generated landmarks nav element has the id 'landmarks'. 
+      If the toc is visible and you want to suppress the display of the landmarks nav,
+      add nav#landmarks { display: none } to your CSS.
+      The types attribute is optional. You may use it to restrict the landmarks to certain 
+      types. By default, all types defined as landmark-types in the associated RNG schema
+      will be considered when generating the landmarks. --> 
+    <type name="landmarks" heading="Übersicht" hidden="true" types="bodymatter toc"/>
+    <type name="cover" heading="Cover" file="cover" guide-type="text"/>
+    <type name="frontmatter" heading="Vorspann"/>
+    <type name="bodymatter" heading="Hauptteil"/>
+    <type name="backmatter" heading="Anhang"/>
+    <type name="glossary" heading="Glossar"/>
+    <type name="letex:bio" file="author"/>
+    <type name="letex:about-the-book" file="about-the-book"/>
+    <type name="abstract" file="about-the-content"/>
+    <type name="fulltitle" file="title"/>
+    <type name="copyright-page" file="copyright"/>
+    <type name="part" file="part"/>
+    <type name="chapter" file="chapter"/>
+    <type name="appendix" file="appendix"/>
+    <type name="glossary" file="glossary"/>
+    <type name="other-credits" file="other-credits"/>
+    <type name="letex:popup" file="popup"/>
+    <type name="letex:advertisement" file="advertisement"/>
+  </types>
+
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier format="EPUB3">89392383923</dc:identifier>
+    <dc:identifier format="KF8">89392383923</dc:identifier>
+    <dc:title>pdf2fxl expample</dc:title>
+    <dc:creator>@mkraetke</dc:creator>
+    <dc:publisher>le-tex</dc:publisher>
+  	<dc:language>de</dc:language>
+  </metadata>
+
+  <hierarchy media-type="application/xhtml+xml" max-population="40" max-text-length="200000">
+    <unconditional-split elt="div" attr="class" attval="white" />
+    <unconditional-split elt="h1" />
+    <heading elt="h1" />
+    
+  </hierarchy>
+  
+</epub-config>
