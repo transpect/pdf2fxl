@@ -16,3 +16,6 @@
 [submodule "schematron"]
 	path = schematron
 	url = https://github.com/transpect/schematron
+[submodule "schema-html"]
+	path = schema-html
+	url = https://github.com/transpect/schema-html
