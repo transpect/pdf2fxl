@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>   
 <?xml-model href="http://transpect.le-tex.de/epubtools/schema/metadata-conf/metadata-conf.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
 <?xml-model href="http://transpect.le-tex.de/epubtools/schema/metadata-conf/metadata-conf.rng" schematypens="http://purl.oclc.org/dsdl/schematron"?>
-<epub-config format="EPUB3" layout="fixed" xmlns:letex="http://www.le-tex.de/namespace" html-subdir-name="text">
+<epub-config format="EPUB3" layout="fixed" html-subdir-name="text">
 	<!-- layout: reflowable|fixed
 	       (default: reflowable; fixed only permitted for KF8 and EPUB3 layouts)
 	     format: EPUB2|EPUB3|KF8 (default: EPUB3)
