@@ -73,8 +73,6 @@ BASENAME=$(basename $FILE .pdf)
 if [ "$FILE" == "*.pdf" ]; then
    echo "stimmt"
 fi
-
-
 # if zoom is not set use default value
 if [ -z $ZOOM ]; then 
     ZOOM=2
@@ -91,7 +89,6 @@ POPPLER=/usr/bin/pdftohtml
 CALABASH=$DIR/calabash/calabash.sh
 
 # some additional information
-
 if [ "$DEBUG" == "yes" ]; then
     echo "DEBUG MODE on"
     echo "Input file: $FILE"
@@ -102,9 +99,6 @@ if [ "$DEBUG" == "yes" ]; then
     echo "Rasterize text: $RASTERTEXT"
     echo "Create EPUB: $EPUB"
 fi
-
-
-
 # copy file into temp dir
 echo "copy files into $WORKDIR"
 mkdir -p $WORKDIR
@@ -128,7 +122,6 @@ else
     FILE=file:$FILE
     OUTDIR=$OUTDIR
 fi
-
 # check if Poppler is installed properly and run 
 if [ ! -f $(which $POPPLER) ]; then
     echo "Poppler pdftohtml not installed under $POPPLER."
@@ -152,7 +145,6 @@ if  [ "$RASTERTEXT" == "yes" ]; then
     convert -verbose -format png -density "$DENSITY" "$WORKDIR/$BASENAME.pdf" "$WORKDIR/$BASENAME.png"
     echo "Rasterizing pages finished"
 fi
-
 # check if Calabash exists and run
 if [ ! -f $CALABASH ]; then
     echo "Calabash is not installed under $CALABASH."
@@ -167,10 +159,17 @@ else
 	rastertext=$RASTERTEXT \
 	debug=$DEBUG \
 	debug-dir-uri=$DEBUGDIR_URI \
-	status-dir-uri=$DEBUGDIR_URI/status \
-	generate-epub="$EPUB"
+	status-dir-uri=$DEBUGDIR_URI/status 2>&1 2>>$LOG
 fi
-
+if [[ "$EPUB" == "yes" ]]; then
+    echo "create EPUB"
+    $CALABASH \
+        -i source=$WORKDIR/$BASENAME.wrap.xhtml \
+        -i meta=epubtools/sample/epub-config.xml \
+        epubtools/xpl/epub-convert.xpl \
+        debug-dir-uri=$DEBUGDIR_URI \
+	status-dir-uri=$DEBUGDIR_URI/status 2>&1 2>>$LOG
+fi
 if [[ "$DEBUG" == "yes" && "EPUB" == "yes" ]]; then
     # copy files
     cp -u $WORKDIR/*.epub $OUTDIR
