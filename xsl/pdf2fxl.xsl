@@ -5,7 +5,7 @@
   xmlns:html="http://www.w3.org/1999/xhtml"
   xmlns:css="http://www.w3.org/1996/css" 
   xmlns="http://www.w3.org/1999/xhtml"
-  exclude-result-prefixes="xs html css"
+  exclude-result-prefixes="#all"
   version="2.0" 
   xpath-default-namespace="http://www.w3.org/1999/xhtml">
   
@@ -119,7 +119,7 @@
 
   <!-- insert missing whitespace, poppler seems to have sometimes problems with italics -->
   <xsl:template match="i">
-    <xsl:copy>
+    <xsl:copy copy-namespaces="no">
       <xsl:text>&#x20;</xsl:text>
       <xsl:apply-templates/>
       <xsl:text>&#x20;</xsl:text>      
