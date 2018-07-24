@@ -49,8 +49,6 @@
   	</p:documentation>
   </p:option>
   
-  <p:option name="genenerate-epub" select="'no'"/><!-- yes -->
-  
   <!-- debugging options -->
 
 	<p:option name="debug" select="'yes'">
@@ -148,11 +146,11 @@
       <p:with-option name="base-uri" select="$debug-dir-uri"/>
     </tr:store-debug>
     
-    <css:expand/>
+    <css:expand name="css-expand"/>
     
   </p:for-each>
   
-  <p:wrap-sequence wrapper="collection"/>
+  <p:wrap-sequence wrapper="collection" name="collection"/>
   
   <cx:message>
     <p:with-option name="message" select="'[info] wrap collection in single HTML'"/>
@@ -165,7 +163,7 @@
   
   <!-- XSLT convert and sort -->
   
-  <p:xslt name="transform-html">
+  <p:xslt name="transform-html" cx:depends-on="collection">
     <p:with-param name="headline-fontsize" select="$headline-fontsize"/>
   	<p:with-param name="rastertext" select="$rastertext"/>
     <p:input port="stylesheet">
@@ -178,7 +176,7 @@
 		<p:with-option name="base-uri" select="$debug-dir-uri"/>
 	      </tr:store-debug>
   
-  <p:xslt name="sort-html">
+  <p:xslt name="sort-html" cx:depends-on="transform-html">
     <p:input port="parameters">
       <p:empty/>
     </p:input>
@@ -213,7 +211,7 @@
   </p:insert>
 	
 	<p:add-attribute match="/html:html" attribute-name="xml:base" name="xmlbase">
-		<p:with-option name="attribute-value" select="replace(/*/@local-href, '^(.+)/([^/]+)/?$', '$1/$2/$2.wrap.html')">
+		<p:with-option name="attribute-value" select="replace(/*/@local-href, '^(.+)/([^/]+)/?$', '$1/$2/$2.wrap.xhtml')">
 			<p:pipe port="result" step="input-dir-uri"/>
 		</p:with-option>
 	</p:add-attribute>
@@ -227,9 +225,9 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <p:sink/>
+  <p:sink name="sink1"/>
   
-  <p:store method="text" cx:depends-on="xmlbase" name="css-write">
+  <p:store method="text" cx:depends-on="xmlbase" name="css-write" undeclare-prefixes="true">
     <p:input port="source">
       <p:pipe port="result" step="rename-wrapper"/>
     </p:input>
@@ -237,38 +235,5 @@
       <p:pipe port="result" step="css-name"/>
     </p:with-option>
   </p:store>
-  
-  <p:choose cx:depends-on="css-write">
-    <p:when test="$generate-epub eq 'yes'">
-      
-      <epub:convert name="epub-convert">
-        <p:input port="source">
-          <p:pipe step="css-name" port="result"/>
-        </p:input>
-        <p:input port="meta">
-          <p:document href="../conf/epub-config.xml"/>
-        </p:input>
-        <p:input port="conf">
-          <p:empty/>
-        </p:input>
-        <p:with-option name="terminate-on-error" select="'no'"/>
-        <p:with-option name="debug" select="$debug"/>
-        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-        <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
-      </epub:convert>
-      
-    </p:when>
-    <p:otherwise>
-      <p:identity>
-        <p:input port="source">
-          <p:inline>
-            <c:data>ok</c:data>
-          </p:inline>
-        </p:input>
-      </p:identity>
-    </p:otherwise>
-  </p:choose>
-  
-  <p:sink/>
   
 </p:declare-step>
