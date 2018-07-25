@@ -84,7 +84,7 @@ if [ -z $OUTDIR ]; then
     OUTDIR=$( real_dir "$FILE" )
 fi
 WORKDIR=$OUTDIR/$BASENAME.tmp
-DEBUGDIR=$OUTDIR/debug
+DEBUGDIR=$WORKDIR/debug
 POPPLER=/usr/bin/pdftohtml
 CALABASH=$DIR/calabash/calabash.sh
 
@@ -163,8 +163,10 @@ if [[ "$EPUB" == "yes" ]]; then
         -i source=$WORKDIR/$BASENAME.wrap.xhtml \
         -i meta=epubtools/sample/epub-config.xml \
         epubtools/xpl/epub-convert.xpl \
+        debug=$DEBUG \
         debug-dir-uri=$DEBUGDIR_URI \
 	status-dir-uri=$DEBUGDIR_URI/status 2>&1 2>>$LOG
+    mv $OUTDIR/epub/$BASENAME.epub $OUTDIR
 fi
 if [[ "$DEBUG" == "yes" && "EPUB" == "yes" ]]; then
     # copy files
