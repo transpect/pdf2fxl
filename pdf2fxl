@@ -166,9 +166,10 @@ if [[ "$EPUB" == "yes" ]]; then
         debug=$DEBUG \
         debug-dir-uri=$DEBUGDIR_URI \
 	status-dir-uri=$DEBUGDIR_URI/status 2>&1 2>>$LOG
-    mv $OUTDIR/epub/$BASENAME.epub $OUTDIR
+    cp -fv $WORKDIR/*.jpg $OUTDIR/epub/OEBPS
+    cd $OUTDIR/epub && zip -uv $OUTDIR/$BASENAME.epub OEBPS/*.jpg  
 fi
 if [[ "$DEBUG" == "yes" && "EPUB" == "yes" ]]; then
     # copy files
-    cp -u $WORKDIR/*.epub $OUTDIR
+    cp -u $WORKDIR/$BASENAME.epub $OUTDIR
 fi
