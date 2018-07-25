@@ -125,7 +125,7 @@
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
   
-  <p:for-each>
+  <p:for-each name="iterate-html">
     <p:iteration-source select="//c:file[matches(@name, '^.+\.(htm|html|xhtml)$')]"/>
     <p:variable name="filename" select="c:file/@name"/>
     <p:variable name="filepath" select="concat(/*/@local-href, '/', $filename)">
@@ -133,24 +133,54 @@
     </p:variable>
     
     <cx:message>
-      <p:with-option name="message" select="'[info] processing ', $filename"/>
+      <p:with-option name="message" select="'[info] processing ', $filepath"/>
     </cx:message>
     
-    <p:load>
+    <p:load name="load">
       <p:with-option name="href" select="$filepath"/>
     </p:load>
     
+    <p:xslt>
+      <p:input port="stylesheet">
+        <p:inline>
+          <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            exclude-result-prefixes="xs"
+            version="2.0">
+            
+            <xsl:template match="@*|*">
+              <xsl:copy>
+                <xsl:apply-templates select="@*, node()"/>
+              </xsl:copy>
+            </xsl:template>
+            
+          </xsl:stylesheet>
+        </p:inline>
+      </p:input>
+      <p:input port="parameters">
+        <p:empty/>
+      </p:input>
+    </p:xslt>
+    
     <tr:store-debug>
-      <p:with-option name="pipeline-step" select="concat('pdf2fxl/', $filename)"/>
+      <p:with-option name="pipeline-step" select="concat('pdf2fxl/html/', $filename)"/>
       <p:with-option name="active" select="$debug"/>
       <p:with-option name="base-uri" select="$debug-dir-uri"/>
     </tr:store-debug>
     
-    <css:expand name="css-expand"/>
+    <css:expand name="expand">
+      <p:input port="stylesheet">
+        <p:document href="../css-tools/xsl/css-parser.xsl"/>
+      </p:input>
+      <p:with-option name="path-constraint" select="''"/>
+      <p:with-option name="prop-constraint" select="''"/>
+      <p:with-option name="debug" select="$debug"/>
+      <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    </css:expand>
     
   </p:for-each>
   
-  <p:wrap-sequence wrapper="collection" name="collection"/>
+  <p:wrap-sequence wrapper="collection" name="collection" cx:depends-on="iterate-html"/>
   
   <cx:message>
     <p:with-option name="message" select="'[info] wrap collection in single HTML'"/>
@@ -174,7 +204,7 @@
   <tr:store-debug pipeline-step="pdf2fxl/html-collection-transform">
 		<p:with-option name="active" select="$debug"/>
 		<p:with-option name="base-uri" select="$debug-dir-uri"/>
-	      </tr:store-debug>
+  </tr:store-debug>
   
   <p:xslt name="sort-html" cx:depends-on="transform-html">
     <p:input port="parameters">
