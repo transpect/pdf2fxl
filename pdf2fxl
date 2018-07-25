@@ -83,7 +83,7 @@ DIR=$( real_dir "${BASH_SOURCE[0]}" )
 if [ -z $OUTDIR ]; then
     OUTDIR=$( real_dir "$FILE" )
 fi
-WORKDIR=$OUTDIR/$BASENAME
+WORKDIR=$OUTDIR/$BASENAME.tmp
 DEBUGDIR=$OUTDIR/debug
 POPPLER=/usr/bin/pdftohtml
 CALABASH=$DIR/calabash/calabash.sh
@@ -99,16 +99,11 @@ if [ "$DEBUG" == "yes" ]; then
     echo "Rasterize text: $RASTERTEXT"
     echo "Create EPUB: $EPUB"
 fi
-# copy file into temp dir
-echo "copy files into $WORKDIR"
-mkdir -p $WORKDIR
-# if poppler is not executed, we let the files from previous runs in the directory
-if [ "EXECPOPPLER" != "yes" ]; then
-  rm $WORKDIR/$BASENAME* 2> /dev/null 
+if [ -d $WORDKDIR ]; then
+    rm -rf $WORKDIR
 fi
-# copy input file into workdir
+mkdir -p $WORKDIR
 cp -u $FILE $WORKDIR
-
 # Windows or Unix-style paths
 if $cygwin; then
     DIR_URI=file:/$(cygpath -m $DIR)
@@ -122,6 +117,7 @@ else
     FILE=file:$FILE
     OUTDIR=$OUTDIR
 fi
+LOG=$WORKDIR/$BASENAME.log
 # check if Poppler is installed properly and run 
 if [ ! -f $(which $POPPLER) ]; then
     echo "Poppler pdftohtml not installed under $POPPLER."
@@ -131,7 +127,7 @@ elif  [ "$EXECPOPPLER" != "no" ]; then
     $POPPLER -zoom $ZOOM \
 	     -fmt jpg -fontfullname -c -p -nomerge \
 	     "$WORKDIR/$BASENAME.pdf" \
-	&& echo "PDF extraction finished"
+	&& echo "[info] PDF extraction finished" 2>&1 2>>$LOG
     for html in "$WORKDIR"/*.html; do
 	cat "$html" | sed -r -e 's/<!--/<!\[CDATA\[/' | sed -r -e 's/-->/\]\]>/' > "$html"~
 	mv "$html"~ "$html"
@@ -141,16 +137,16 @@ fi
 # use ImageMagick to generate images from pages
 if  [ "$RASTERTEXT" == "yes" ]; then
      DENSITY=$((72 * $ZOOM))
-    echo "Propagated image density: $DENSITY"
-    convert -verbose -format png -density "$DENSITY" "$WORKDIR/$BASENAME.pdf" "$WORKDIR/$BASENAME.png"
-    echo "Rasterizing pages finished"
+    echo "[info] Propagated image density: $DENSITY" >> $LOG
+    convert -verbose -format png -density "$DENSITY" "$WORKDIR/$BASENAME.pdf" "$WORKDIR/$BASENAME.png" 2>&1 2>>$LOG
+    echo "[info] Rasterizing pages finished" >> $LOG
 fi
 # check if Calabash exists and run
 if [ ! -f $CALABASH ]; then
     echo "Calabash is not installed under $CALABASH."
     exit 1
 else
-    echo "Convert single page HTML to wrapped HTML"
+    echo "[info] Convert single page HTML to wrapped HTML" >> $LOG
     $CALABASH \
 	-o css=$WORKDIR/$BASENAME.wrap.css \
 	-o result=$WORKDIR/$BASENAME.wrap.xhtml \
@@ -162,7 +158,7 @@ else
 	status-dir-uri=$DEBUGDIR_URI/status 2>&1 2>>$LOG
 fi
 if [[ "$EPUB" == "yes" ]]; then
-    echo "create EPUB"
+    echo "[info] create EPUB" >> $LOG
     $CALABASH \
         -i source=$WORKDIR/$BASENAME.wrap.xhtml \
         -i meta=epubtools/sample/epub-config.xml \
