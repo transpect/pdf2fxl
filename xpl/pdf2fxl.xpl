@@ -241,7 +241,7 @@
   </p:insert>
 	
 	<p:add-attribute match="/html:html" attribute-name="xml:base" name="xmlbase">
-		<p:with-option name="attribute-value" select="replace(/*/@local-href, '^(.+)/([^/]+)/?$', '$1/$2/$2.wrap.xhtml')">
+		<p:with-option name="attribute-value" select="replace(/*/@local-href, '^(.+)/([^/]+)/?\.[a-z]+$', '$1/$2.epub')">
 			<p:pipe port="result" step="input-dir-uri"/>
 		</p:with-option>
 	</p:add-attribute>
