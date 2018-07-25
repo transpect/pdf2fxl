@@ -31,7 +31,8 @@ git clone http://github.com/transpect/pdf2fxl --recursive
 pdf2fxl <options> {PDF}
 
 | switch |  options                |
-| -z     | <zoom factor>           |
+|--------|-------------------------|
+| -z     | zoom factor             |
 | -o     | custom output directory |
 | -r     | raster text as image    |
 | -e     | create epub             |
