@@ -26,7 +26,7 @@ git clone http://github.com/transpect/pdf2fxl --recursive
 
 ## Invocation
 
-`./pdf2fxl sample/demojam.pdf -d -e`
+`./pdf2fxl -d -e sample/demojam.pdf`
 
 pdf2fxl <options> {PDF}
 
